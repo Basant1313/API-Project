@@ -1,3 +1,7 @@
+// NOTE - Using Postman application to check API
+
+
+
 // REQUIREMENT FOR OUR PROJECT
 
 //We are a book management company
@@ -24,11 +28,18 @@
 
 //2.AUTHORS
 //we need an API :-
-//To get all the authors
-//To get a specific author
-//To get a list of authors based on books
+//To get all the authors - DONE
+//To get a specific author -DONE
+//To get a list of authors based on books - DONE
 
 //3.PUBLICATION
-//To get all publication
+//To get all publication - DONE
 //To get a specific publication
 //To get a list of publication based on a book
+
+
+//POST REQUEST 
+
+//1. ADD NEW BOOKS - DONE
+//2. ADD NEW PUBLICATION -
+//3. ADD NEW AUTHOR - DONE
