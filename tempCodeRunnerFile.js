@@ -1,0 +1,1 @@
+/publication/update/book/:isbn

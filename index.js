@@ -186,6 +186,123 @@ return res.json(database.publication);
 });
 
 
+/*
+Route           /publication/upadate/book
+Description     update and add a new publication
+Access          PUBLIC
+Parameter       ISBN
+Methods         PUT
+
+*/
+
+booky.put("/publication/update/book/:isbn",(req,res) =>{
+//update the publication database
+database.publication.forEach((pub) =>{ 
+    // we want update the entire database but we don't want anything to be returned that,s why we are using for each loop
+    if(pub.id === req.body.pubId){ 
+        // so we will check that pulication which is in database is equal to pubId we have passed in our request then we will pushing(isbn) the that request. 
+      return pub.books.push(req.params.isbn);
+    }
+});
+
+//Update the book database
+database.books.forEach((book) => {
+    if(book.ISBN === req.params.isbn){
+        book.publications = req.body.pubId;
+        return;
+    }
+});
+return res.json(
+    {
+        books: database.books,
+        publications: database.publication,
+        message: "Successfully updated publications"
+    }
+)
+});
+
+
+
+/*** DELETE ***/
+
+/*
+Route           /book/delete
+Description     delete a book
+Access          PUBLIC
+Parameter       ISBN
+Methods         DELETE
+
+*/
+
+booky.delete("/book/delete/:isbn", (req,res) => {
+
+    // which ever book that does match with isbn ,just send it to an updatedbookDatabase array 
+    // and rest will be filter out 
+
+
+    // we are using filter instead of slicing and all because map and filter has low time complexity .
+    
+    // whenever you want to return something you should map and filter   and if you replace the data or change the data then you use foreach loop.
+
+
+    const updatedBookDatabase = database.books.filter(
+        (book) => book.ISBN !== req.params.isbn
+    )
+         database.books = updatedBookDatabase;
+
+         return res.json({books : database.books})
+
+});
+
+/* In this we will use multiple parameter
+ Route          /book/delete/author
+Description     delete an author from a book and vice versa
+Access          PUBLIC
+Parameter       ISBN,authorId
+Methods         DELETE
+
+*/
+
+//so first we go and check the ISBN is equal to whatever the ISBN is provided in the parameter then we basically go inside that particular and in that particular book also we have entire array of author and we iterate entire arrray of author we will filter out which is not equal to authorId provided in the parameter because the authorId provided in the parameter has to be deleted .The authorId which are not matching we will store them in new array and we will be assigning the book.author with the entire new array
+booky.delete("/book/delete/author/:isbn/:authorId",(req,res) =>{
+
+
+    //update the book database 
+    database.books.forEach((book) => {
+    if(book.ISBN === req.params.isbn){
+        const newAuthorList = book.author.filter(
+            // if is good practice to use parseInt because whenever you are having in your parameter and your accesing it because it is possible this thing is in string format
+            (eachAuthor) => eachAuthor !== parseInt(req.params.authorId)
+        );
+
+        book.author = newAuthorList;
+        return;
+    }
+
+    });
+    
+
+    //update the author database
+
+    // go to the author array of object having id  is equal to the id provided in the parameter if its having so then go inside that particular object and check if isbn is equal to the isbn provided in the parameters if it is so then keep that book aside and rest all book filter them out into new array and then update author book array to the new book array
+
+    database.author.forEach((eachAuthor) => {
+        if(eachAuthor.id === parseInt(req.params.authorId)){
+            const newBookList = eachAuthor.books.filter(
+                (book)=>book !== req.params.isbn
+            );
+            eachAuthor.books = newBookList;
+        }
+    })
+
+
+    return res.json({
+        book:database.books,
+        author:database.author,
+        message:"Author was deleted!!! "
+    });
+});
+
 booky.listen(4000,() => {
     console.log("Server is up and running on PORT 4000 ")
 });

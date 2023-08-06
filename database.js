@@ -8,7 +8,7 @@ const books = [
         language:"en",
         numPage: 250,
         author:[1,2],
-        publication:[1],
+        publications:[1],
         category:["tech","space","education"]
     }
 
@@ -32,7 +32,13 @@ const publication = [
         id:1,
         name:"writeX",
         books:["996511book"]
+    },
+    {
+        id:2,
+        name:"writeX2",
+        books:[]
     }
+  
 ]
 
 
