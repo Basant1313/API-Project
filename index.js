@@ -1,4 +1,7 @@
+require("dotenv").config();
+
 const express = require("express");
+const mongoose = require("mongoose");
 
 //Importing body Parser
 const bodyParser = require("body-parser");
@@ -14,6 +17,15 @@ const booky= express();
 booky.use(bodyParser.urlencoded({extended: true})); /*this is something we have to use when we are dealing with POST request */
 
 booky.use(bodyParser.json()); //bodyparser should use only json format
+
+mongoose.connect(process.env.MONGO_URL, // process entire URL available in .env file  and it will render it on runtime so one basically see it or hack it our database
+{
+    useNewUrlParser : true,
+    useUnifiedTopology : true,
+    // useFindAndModify : false,
+    // useCreateIndex : true
+}
+).then(() => console.log("Connection Established"));
 /*
 Route           /
 Description    Get all the books
