@@ -6,7 +6,13 @@ const mongoose = require("mongoose");
 //Importing body Parser
 const bodyParser = require("body-parser");
 //Database
-const database = require("./database")//since it is in same file so we are using ./
+const database = require("./Database/database")//since it is in same file so we are using ./
+
+// Models
+
+const BookModel = require("./Database/book");
+const PublicationModel = require("./Database/publication");
+const AuthorModel = require("./Database/author");
 
 //initialise express
 
@@ -26,6 +32,16 @@ mongoose.connect(process.env.MONGO_URL, // process entire URL available in .env 
     // useCreateIndex : true
 }
 ).then(() => console.log("Connection Established"));
+
+
+// We will be using mongoose to get all the books  mongoDB and Mongoose are related to asynchorous task
+
+// when we have asynchorous take we have follow certain rules
+// write async
+// when we have call function or try to find anything we have to write await
+ // below changes are done
+
+
 /*
 Route           /
 Description    Get all the books
@@ -35,8 +51,12 @@ Methods         GET
 
 */
 
-booky.get("/",(req,res) =>{
-    return res.json({books:database.books}) //books as a key and as value database.books kind of DOM
+
+booky.get("/",async(req,res) =>{
+    const getAllBooks = await BookModel.find();//find function - inside find function we are not putting any parameters that mean inside book model it will search the schema goto the model and check that what are the database available and print the databases because here the parameter is nothing so i will print everything 
+
+
+    return res.json(getAllBooks) //books as a key and as value database.books kind of DOM
 });
 
 /*
@@ -48,13 +68,15 @@ Methods         GET
 
 */
 
-booky.get("/is/:isbn",(req,res) =>{
-    const getSpecificBook = database.books.filter(
-        (book)=>book.ISBN === req.params.isbn
-        );
+booky.get("/is/:isbn",async (req,res) =>{
 
-        if(getSpecificBook.length === 0){
-            return res.json({error: `No book found foe the ISBN of ${req.params.isbn}`})
+    const getSpecificBook = await BookModel.findOne({ISBN:  req.params.isbn}); // find() find alot it will return more than one element but here we just have to find one book because isbn are uniques so that why we will write findOne() which is an another function which just return one thing only
+
+    //  if(getSpecificBook.length === 0) -> this is not support in mongoDB( === 0) is not understand by mongoDB because its not an language
+
+    // NULL !0=1 , !1=0
+        if(!getSpecificBook){
+            return res.json({error: `No book found for the ISBN of ${req.params.isbn}`})
         }
 
         return res.json({book: getSpecificBook});
@@ -69,15 +91,17 @@ Methods         GET
 
 */
 
-booky.get("/c/:category",(req,res) => {
-    const getSpecificBook = database.books.filter(
-        (book) => book.category.includes(req.params.category)
-    )
+booky.get("/c/:category", async (req,res) => {
+    const getSpecificBook = await BookModel.findOne({category:  req.params.category}); // find() find alot it will return more than one element but here we just have to find one book because isbn are uniques so that why we will write findOne() which is an another function which just return one thing only
 
-    if(getSpecificBook.length === 0){
-        return res.json({error:`No Book for the category of ${req.params.category}`})
-    }
-    return res.json({book:getSpecificBook});
+    //  if(getSpecificBook.length === 0) -> this is not support in mongoDB( === 0) is not understand by mongoDB because its not an language
+
+    // NULL !0=1 , !1=0
+        if(!getSpecificBook){
+            return res.json({error: `No book found for the category of ${req.params.category}`})
+        }
+
+        return res.json({book: getSpecificBook});
 });
 
 /*
@@ -89,16 +113,17 @@ Methods         GET
 
 */
 
-booky.get("/lang/:language",(req,res) => {
-    const getSpecificBook = database.books.filter(
-        (book) => book.language.includes(req.params.language)
-    )
+booky.get("/lang/:language", async (req,res) => {
+    const getSpecificBook = await BookModel.findOne({language:  req.params.language}); // find() find alot it will return more than one element but here we just have to find one book because isbn are uniques so that why we will write findOne() which is an another function which just return one thing only
 
-    if(getSpecificBook.length === 0){
-        return res.json({error: `No Book for language of ${req.params.language}`})
-    }
+    //  if(getSpecificBook.length === 0) -> this is not support in mongoDB( === 0) is not understand by mongoDB because its not an language
 
-    return res.json({book:getSpecificBook});
+    // NULL !0=1 , !1=0
+        if(!getSpecificBook){
+            return res.json({error: `No book found for the language of ${req.params.language}`})
+        }
+
+        return res.json({book: getSpecificBook});
 });
 
 /*
@@ -110,8 +135,11 @@ Methods         GET
 
 */
 
-booky.get("/author",(req,res) => {
-    return res.json({author: database.author});
+booky.get("/author", async (req,res) => {
+
+    const getAllAuthors = await AuthorModel.find();
+    
+    return res.json(getAllAuthors);
 });
 
 
@@ -144,8 +172,10 @@ Methods         GET
 
 */
 
-booky.get("/publication",(req,res) => {
-    return res.json({publication : database.publication});
+booky.get("/publication", async(req,res) => {
+    const getAllPublications = await PublicationModel.find();
+   
+    return res.json(getAllPublications);
 });
 
 
@@ -161,10 +191,20 @@ Methods         POST
 
 */
 
-booky.post("/book/new",(req,res) =>{
-    const newBook = req.body; // fetch the body of our request
-    database.books.push(newBook) // pushed new book into database
-    return res.json({updatedBooks : database.books}); //giving response
+booky.post("/book/new", async (req,res) =>{
+    // fetching our new book from our  body we have to de-structure it. why are we destructuring it because in our body we will passing our book inside it like an object format and that is the way we can destructure it and use in mongoose and mongoDB so it is imp to destructure it.
+    
+    const { newBook } = req.body; // fetch the body of our request
+
+    const addNewBook = BookModel.create(newBook);
+    return res.json(
+        {
+            books: addNewBook,
+            message:"Book was added !!!"
+    
+    });
+
+    
     });
 
 /*
@@ -176,10 +216,14 @@ Methods         POST
 
 */
 
-booky.post("/author/new",(req,res) => {
-const newAuthor = req.body;
-database.author.push(newAuthor);
-return res.json(database.author);
+booky.post("/author/new", async (req,res) => {
+const { newAuthor } = req.body;
+const addNewAuthor = AuthorModel.create(newAuthor);
+return res.json({
+    author: addNewAuthor,
+    message:"Author was added !!!"
+    
+    });
 });
 
 /*

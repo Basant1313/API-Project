@@ -42,6 +42,6 @@ const publication = [
 ]
 
 
-//this is an external dataset so we have tell this partiular file that this dataset has to be exported becuase bydefault they have the security and this cannot be used in other js file we have to export dataset.
+//this is an external dataset so we have tell this partiular file that this dataset has to be exported becuase by default they have the security and this cannot be used in other js file we have to export dataset.
 
 module.exports = {books,author,publication};

@@ -55,3 +55,14 @@
 //2. DELETE AUTHOR FROM BOOK - 
 //3. DELETE FROM BOOK AND RELEATED FROM AUTHOR - DONE
 
+// Schema - Blueprint of how data has to be constructed
+
+//MongoDB is schemaless
+
+// mongoose has schema
+
+//mongoose - validation (checking or security) - example => enter the phone number but by mistake you give 11 digit gives an error enter valid number.
+
+// Model -> document model of mongoDB
+
+//Schema -> Model->use them.
