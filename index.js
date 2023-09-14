@@ -242,6 +242,107 @@ return res.json(database.publication);
 });
 
 
+
+ /**********PUT **********/
+
+
+/*
+Route           /book/update
+Description     update book on isbn
+Access          PUBLIC
+Parameter       ISBN
+Methods         PUT
+
+*/
+
+booky.put("/book/update/:isbn" , async (req,res) => {
+        //updating database
+    const updatedBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN:req.params.isbn
+        },
+        {
+            title: req.body.bookTitle
+        },
+        {
+            new: true // this is imp parameter this is basically update the entire book and also this will update the BookTitle in backend but it will also show the new Book on frontend also like mongoDB frontend and postmen
+        }
+    );
+
+    return res.json({
+        books: updatedBook
+    });
+
+});
+   
+    
+/*
+Route           /book/author/update
+Description     update / add a new author
+Access          PUBLIC
+Parameter       ISBN
+Methods         PUT
+
+*/
+
+booky.put ("/book/author/update/:isbn" , async(req,res) =>{
+
+    //update book database 
+    const updatedBook = await BookModel.findOneAndUpdate(
+        // we need bookmodel to fetch and make changes
+        {
+            ISBN : req.params.isbn // first parameter
+        },
+        {
+          // we cannot use ($push) method because duplicate value can be added if we click send button by mistake
+
+          $addToSet : {
+            author : req.body.newAuthor // second parameter
+          }
+        },
+        {
+            new : true // third parameter 
+        }
+    );
+
+    // update the author database
+    const updatedAuthor = await AuthorModel.findOneAndUpdate(
+        {
+            id: req.body.newAuthor // first parameter  
+        },
+        { 
+    
+            $addToSet: {
+                books: req.params.isbn // second parameter
+            }
+        },
+        {
+            new:true // third parameter
+        }
+    );
+
+    return res.json(
+        {
+            books : updatedBook,
+            author : updatedAuthor,
+            message : "New author was added"
+        }
+    )
+});
+
+
+           
+           
+
+
+
+
+
+
+
+
+
+
 /*
 Route           /publication/upadate/book
 Description     update and add a new publication
@@ -250,7 +351,6 @@ Parameter       ISBN
 Methods         PUT
 
 */
-
 booky.put("/publication/update/book/:isbn",(req,res) =>{
 //update the publication database
 database.publication.forEach((pub) =>{ 
@@ -290,7 +390,7 @@ Methods         DELETE
 
 */
 
-booky.delete("/book/delete/:isbn", (req,res) => {
+booky.delete("/book/delete/:isbn", async (req,res) => {
 
     // which ever book that does match with isbn ,just send it to an updatedbookDatabase array 
     // and rest will be filter out 
@@ -300,13 +400,19 @@ booky.delete("/book/delete/:isbn", (req,res) => {
     
     // whenever you want to return something you should map and filter   and if you replace the data or change the data then you use foreach loop.
 
+    // Now we will be using delete of entire like mongoDB and then will b modify to perform the delete operation
 
-    const updatedBookDatabase = database.books.filter(
-        (book) => book.ISBN !== req.params.isbn
+    const updatedbookDatabase = await BookModel.findOneAndDelete(
+        {
+            ISBN : req.params.isbn
+        }
+    );
+
+    return res.json(
+        {
+            books : updatedbookDatabase
+        }
     )
-         database.books = updatedBookDatabase;
-
-         return res.json({books : database.books})
 
 });
 
